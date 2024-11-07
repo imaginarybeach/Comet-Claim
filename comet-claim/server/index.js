@@ -66,6 +66,22 @@ app.post('/api/lost-items', async (req, res) => {
   }
 })
 
+app.get('/api/search', async (req, res) => {
+  try {
+    console.log('Received search request')
+    const items = await prisma.lostItem.findMany({
+      orderBy: {
+        foundDate: 'desc'
+      }
+    })
+    console.log('Found items:', items.length) 
+    res.json(items)
+  } catch (error) {
+    console.error('Error fetching items:', error)
+    res.status(500).json({ message: 'Error fetching items' })
+  }
+})
+
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
