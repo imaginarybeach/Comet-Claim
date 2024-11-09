@@ -42,86 +42,86 @@ function App() {
     }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-  
+    e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      let imageUrl = null
-      if (imageFile) {
-        const formData = new FormData()
-        formData.append('image', imageFile)
+        let imageUrl = null;
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append('image', imageFile);
 
-        const uploadResponse = await fetch('http://localhost:3001/api/upload', {
-          method: 'POST',
-          body: formData,
-        })
+            const uploadResponse = await fetch('http://localhost:3001/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
 
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload image');
+            }
+
+            const uploadData = await uploadResponse.json();
+            imageUrl = uploadData.filename;
         }
 
-        const uploadData = await uploadResponse.json()
-        imageUrl = uploadData.filename
-      }
+        const response = await fetch('http://localhost:3001/api/lost-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                itemName: formData.itemFound,
+                foundDate: new Date(formData.foundDate).toISOString(),
+                finderName: formData.finderName,
+                finderEmail: formData.finderEmail,
+                locationFound: formData.locationFound,
+                roomNumber: formData.roomNumber || null,
+                color: formData.color,
+                category: formData.category,
+                description: formData.description || '',
+                status: 'Lost',
+                keyId: formData.keyId,
+                imageUrl: imageUrl
+            }),
+        });
 
-      const response = await fetch('http://localhost:3001/api/lost-items', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          itemName: formData.itemFound,
-          foundDate: new Date(formData.foundDate).toISOString(),
-          finderName: formData.finderName,
-          finderEmail: formData.finderEmail,
-          locationFound: formData.locationFound,
-          roomNumber: formData.roomNumber || null,
-          color: formData.color,
-          category: formData.category,
-          description: formData.description || '',
-          status: 'Lost',
-          keyId: formData.keyId,
-          imageUrl: imageUrl
-        }),
-      })
-  
-      const data = await response.json()
-  
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit form')
-      }
-  
-      toast.success('Item registered successfully!', {
-        position: "top-right",
-        autoClose: 5000,
-      })
-  
-      // Reset form
-      setFormData({
-        foundDate: '',
-        finderName: '',
-        finderEmail: '',
-        itemFound: '',
-        locationFound: '',
-        roomNumber: '',
-        color: '',
-        category: '',
-        description: '',
-        status: 'Found',
-        keyId: Math.random().toString(36).substr(2, 6).toUpperCase()
-      })
-      setImagePreview(null)
-  
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to submit form');
+        }
+
+        toast.success('Item registered successfully!', {
+            position: "top-right",
+            autoClose: 5000,
+        });
+
+        setFormData({
+            foundDate: '',
+            finderName: '',
+            finderEmail: '',
+            itemFound: '',
+            locationFound: '',
+            roomNumber: '',
+            color: '',
+            category: '',
+            description: '',
+            status: 'Found',
+            keyId: Math.random().toString(36).substr(2, 6).toUpperCase()
+        });
+        setImagePreview(null);
+        setImageFile(null);
+
     } catch (error) {
-      console.error('Form submission error:', error)
-      toast.error(error.message || 'Failed to register item. Please try again.', {
-        position: "top-right",
-        autoClose: 5000,
-      })
+        console.error('Form submission error:', error);
+        toast.error(error.message || 'Failed to register item. Please try again.', {
+            position: "top-right",
+            autoClose: 5000,
+        });
     } finally {
-      setIsSubmitting(false)
+        setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -131,14 +131,14 @@ function App() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block mb-2">Found Date:</label>
+            <label htmlFor="foundDate" className="block mb-2">Found Date:</label>
             <input
-              type="date"
-              name="foundDate"
-              value={formData.foundDate}
-              onChange={handleChange}
+              id="foundDate"
               className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
-              required
+              name="foundDate"
+              value={formData.foundDate}  
+              onChange={handleChange}     
+              type="date"
             />
           </div>
 
@@ -146,10 +146,11 @@ function App() {
             <h2 className="text-xl font-semibold mb-4">Finder Information</h2>
             <div className="space-y-4">
               <div>
-                <label className="block mb-2">Finder name:</label>
+                <label htmlFor="finderName" className="block mb-2">Finder name:</label>
                 <input
-                  type="text"
+                  id="finderName"
                   name="finderName"
+                  type="text"
                   value={formData.finderName}
                   onChange={handleChange}
                   className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -157,10 +158,11 @@ function App() {
                 />
               </div>
               <div>
-                <label className="block mb-2">Finder email:</label>
+                <label htmlFor="finderEmail" className="block mb-2">Finder email:</label>
                 <input
-                  type="email"
+                  id="finderEmail"
                   name="finderEmail"
+                  type="email"
                   value={formData.finderEmail}
                   onChange={handleChange}
                   className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -175,10 +177,11 @@ function App() {
             <h2 className="text-xl font-semibold mb-4">Item Information</h2>
             <div className="space-y-4">
               <div>
-                <label className="block mb-2">Item found:</label>
+                <label htmlFor="itemFound" className="block mb-2">Item found:</label>
                 <input
-                  type="text"
+                  id="itemFound"
                   name="itemFound"
+                  type="text"
                   value={formData.itemFound}
                   onChange={handleChange}
                   className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -187,10 +190,11 @@ function App() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-2">Location found:</label>
+                  <label htmlFor="locationFound" className="block mb-2">Location found:</label>
                   <input
-                    type="text"
+                    id="locationFound"
                     name="locationFound"
+                    type="text"
                     value={formData.locationFound}
                     onChange={handleChange}
                     className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -198,10 +202,11 @@ function App() {
                   />
                 </div>
                 <div>
-                  <label className="block mb-2">Room number:</label>
+                  <label htmlFor="roomNumber" className="block mb-2">Room number:</label>
                   <input
-                    type="text"
+                    id="roomNumber"
                     name="roomNumber"
+                    type="text"
                     value={formData.roomNumber}
                     onChange={handleChange}
                     className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -210,10 +215,11 @@ function App() {
                 </div>
               </div>
               <div>
-                <label className="block mb-2">Color:</label>
+                <label htmlFor="color" className="block mb-2">Color:</label>
                 <input
-                  type="text"
+                  id="color"
                   name="color"
+                  type="text"
                   value={formData.color}
                   onChange={handleChange}
                   className="w-full p-2 rounded-md bg-[#FFF1EC] border-[#E37B54] border"
@@ -244,8 +250,9 @@ function App() {
                 </div>
               </div>
               <div>
-                <label className="block mb-2">Description:</label>
+                <label htmlFor="description" className="block mb-2">Description:</label>
                 <textarea
+                  id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
@@ -254,8 +261,9 @@ function App() {
                 />
               </div>
                 <div>
-                    <label className="block mb-2">Category:</label>
+                    <label htmlFor="category" className="block mb-2">Category:</label>
                     <select
+                        id="category"
                         name="category"
                         value={formData.category}
                         onChange={handleChange}
