@@ -14,11 +14,16 @@
 >>>>>>> add-vite-app
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+<<<<<<< HEAD
     "@testing-library/react": "^16.0.1",
+=======
+    "@testing-library/dom": "^10.4.0",
+>>>>>>> 238785d365399fe17a340212f59d653c93ebb424
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
@@ -31,6 +36,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+<<<<<<< HEAD
+=======
+    "@testing-library/dom": "^10.4.0",
+>>>>>>> 238785d365399fe17a340212f59d653c93ebb424
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
