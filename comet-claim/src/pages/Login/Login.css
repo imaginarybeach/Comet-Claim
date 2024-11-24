@@ -1,0 +1,89 @@
+.login{
+    width: 100%;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.login .left{
+    width: 50%;
+    height: 100vh;
+    background-image: linear-gradient(#F5A06F, #c55418);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login .left h1{
+    color: rgb(255, 255, 255);
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bolder;
+    font-size: 3vw;
+    cursor: default;
+}
+
+.login .right{
+    width: 50%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login .right h2{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: bolder;
+    font-size: 2vw;
+    padding: 50px;
+    cursor: default;
+}
+
+.login form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 51px;
+}
+
+
+.login form input{
+    width: 20vw;
+    background-color: #FFF4EF;
+    padding: 15px;
+    border-radius: 10px;
+    border-bottom-color: #F9844A;
+    border-bottom-width: 4px;
+    outline: none;
+}
+
+.login form button{
+    margin-top: 20px;
+    padding: 16px;
+    width: 18vw;
+    background-image: linear-gradient(#0c6d4e , #47c09e);
+    border-radius: 20px;
+    color: white;
+    font-size: 1vw;
+    font-weight: bold;
+}
+
+.login form button:hover{
+    background-image: linear-gradient(#0c6d4e , #0c6d4e);
+}
+
+.login .role_switch{
+    font-size: 0.9vw;
+    font-weight: 500;
+    margin: 55px;
+    text-decoration: underline;
+    color: #e45000;
+}
+
+.login .role_switch:hover{
+    cursor: pointer;
+}
