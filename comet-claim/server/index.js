@@ -1,19 +1,33 @@
 import express from 'express'
 import cors from 'cors'
+import bodyParser from 'body-parser'
 import { PrismaClient } from '@prisma/client'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import multer from 'multer'
+import { setCustomClaims } from '../authentication/setCustomClaims.js'
+import { decodeToken } from '../authentication/authMiddleware.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
 
-app.use(cors({
-  origin: 'http://localhost:5173' 
-}))
-app.use(express.json())
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5183']; 
+const corsOptions = { 
+  origin: (origin, callback) => { 
+    if (allowedOrigins.includes(origin) || !origin) { 
+      callback(null, true); 
+    } else { 
+      callback(new Error('Not allowed by CORS')); 
+    } 
+  } 
+}; 
 
+app.use(cors(corsOptions));
+app.use(express.json())
+app.use(bodyParser.json());
+
+app.use(decodeToken);
 
 // Serve static files from the uploads directory -- uploads the images to the uploads folder
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
@@ -82,6 +96,20 @@ app.get('/api/search', async (req, res) => {
   }
 })
 
+
+app.post('/setRole', async (req, res) => { 
+  const { uid, role } = req.body; 
+  if (!req.user) { 
+    return res.status(403).send('Unauthorized'); 
+  } 
+  try { 
+    await setCustomClaims(uid, role); 
+    res.status(200).send(`Role ${role} set for user ${uid}`); 
+  } catch (error) { 
+    console.error('Error setting role:', error); 
+    res.status(500).send('Error setting role'); 
+  } 
+});
 
 
 const PORT = 3001
