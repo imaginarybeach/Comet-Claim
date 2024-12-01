@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FiSearch, FiFilter } from 'react-icons/fi'
+import { auth } from '../firebase/firebaseConfig';
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -20,26 +21,39 @@ export default function SearchPage() {
     'Other'
   ]
 
-  const fetchItems = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('http://localhost:3001/api/search')
-      if (!response.ok) {
-        throw new Error('Failed to fetch items')
-      }
-      const data = await response.json()
-      setItems(data)
-      setFilteredItems(data)
-    } catch (error) {
-      console.error('Error fetching items:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  useEffect(() => {
-    fetchItems()
-  }, [])
+const fetchItems = async () => {
+  setLoading(true);
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const idToken = await currentUser.getIdToken(true);
+      console.log('ID Token:', idToken); 
+      const response = await fetch('http://localhost:3001/api/search', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch items');
+      }
+      const data = await response.json();
+      setItems(data);
+      setFilteredItems(data);
+    } else {
+      console.log('User not authenticated');
+    }
+  } catch (error) {
+    console.error('Error fetching items:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchItems();
+}, []);
+
 
   useEffect(() => {
     let filtered = items

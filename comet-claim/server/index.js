@@ -1,19 +1,23 @@
 import express from 'express'
 import cors from 'cors'
+import bodyParser from 'body-parser'
 import { PrismaClient } from '@prisma/client'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import multer from 'multer'
+import { setCustomClaims } from '../authentication/setCustomClaims.js'
+import { verifyToken } from '../authentication/authMiddleware.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
 
 app.use(cors({
-  origin: 'http://localhost:5173' 
-}))
+  origin: 'http://localhost:5173',  
+  allowedHeaders: ['Content-Type', 'Authorization', 'Referer']  
+}));
 app.use(express.json())
-
+app.use(bodyParser.json());
 
 // Serve static files from the uploads directory -- uploads the images to the uploads folder
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
@@ -39,7 +43,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 })
 
 // Lost items creation
-app.post('/api/lost-items', async (req, res) => {
+app.post('/api/lost-items', verifyToken, async (req, res) => {
   try {
     console.log('Received request body:', req.body)
     
@@ -66,21 +70,43 @@ app.post('/api/lost-items', async (req, res) => {
   }
 })
 
-app.get('/api/search', async (req, res) => {
+app.get('/api/search', verifyToken, async (req, res) => {
   try {
-    console.log('Received search request')
+    console.log('Received search request');
+    console.log('User:', req.user);  // Check if user is populated correctly
+    if (!req.user) {
+      return res.status(403).send('Unauthorized');
+    }
+
     const items = await prisma.lostItem.findMany({
       orderBy: {
         foundDate: 'desc'
       }
-    })
-    console.log('Found items:', items.length) 
-    res.json(items)
+    });
+    console.log('Found items:', items.length); 
+    res.json(items);
   } catch (error) {
-    console.error('Error fetching items:', error)
-    res.status(500).json({ message: 'Error fetching items' })
+    console.error('Error fetching items:', error);
+    res.status(500).json({ message: 'Error fetching items' });
   }
-})
+});
+
+
+
+app.post('/setRole', async (req, res) => { 
+  const { uid, role } = req.body; 
+  if (!req.user) { 
+    return res.status(403).send('Unauthorized'); 
+  } 
+  try { 
+    await setCustomClaims(uid, role); 
+    res.status(200).send(`Role ${role} set for user ${uid}`); 
+  } catch (error) { 
+    console.error('Error setting role:', error); 
+    res.status(500).send('Error setting role'); 
+  } 
+});
+
 
 const PORT = 3001
 app.listen(PORT, () => {
