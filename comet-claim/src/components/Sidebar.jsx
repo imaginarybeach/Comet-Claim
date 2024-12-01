@@ -16,11 +16,8 @@ export default function Sidebar() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
-        console.log('Current User:', currentUser); 
-
         if (currentUser) {
           const idTokenResult = await getIdTokenResult(currentUser);
-          console.log('User Role:', idTokenResult.claims.role); 
           setUserRole(idTokenResult.claims.role);
         } else {
           console.log('No current user');

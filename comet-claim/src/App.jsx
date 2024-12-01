@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from './firebase/firebaseConfig';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from './components/Sidebar'
@@ -17,6 +18,21 @@ import StudentHistory from './pages/studentHistory';
 
 
 function App() {
+  const [user, setUser] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  
+  useEffect(() => { 
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => { 
+      setUser(currentUser); 
+      setLoading(false); 
+    }); 
+    return () => unsubscribe();
+   }, []); 
+
+   if (loading) { 
+    return <div>Loading...</div>;
+   }
+
   return (
       <div className="flex min-h-screen bg-white">
       <Sidebar />

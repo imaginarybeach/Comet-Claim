@@ -1,27 +1,17 @@
-/*backend/firebaseAdmin.js
 import admin from 'firebase-admin';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const serviceAccount = require('./serviceAccount.json');
+import dotenv from 'dotenv';
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com'
-});
+dotenv.config();
 
-export default admin;*/
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT); 
 
-
-import admin from 'firebase-admin';
-import { readFile } from 'fs/promises';
-
-/*const serviceAccount = JSON.parse(
-  await readFile(new URL('./serviceAccount.json', import.meta.url))
-);*/
-
-admin.initializeApp({
-  //credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://lostandfound-d79fa.firebaseio.com'
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://lostandfound-d79fa.firebaseio.com'
+  });
+} else {
+  admin.app();
+}
 
 export default admin;
