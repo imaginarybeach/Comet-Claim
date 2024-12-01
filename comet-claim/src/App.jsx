@@ -9,10 +9,11 @@ import RegisterPage from './pages/RegisterPage'
 import SearchPage from './pages/SearchPage'
 import ReportPage from './pages/ReportPage';
 import Account from './pages/Account';
-import StudentDashboard from './pages/StudentDashboard';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './ProtectedRoute'
 import AdminPage from './components/AdminPage';
+import ClaimRequest from './pages/claimRequest';
+import StudentHistory from './pages/studentHistory';
 
 
 function App() {
@@ -26,9 +27,11 @@ function App() {
             <Route path="/search" element={<ProtectedRoute element={SearchPage} role="staff" />} /> 
             <Route path="/register" element={<ProtectedRoute element={RegisterPage} role="staff" />} />
             <Route path="/report" element={<ProtectedRoute element={ReportPage} role="staff" />} />
-            <Route path="/account" element={<ProtectedRoute element={Account} role="staff" />} />
+            <Route path="/account" element={<ProtectedRoute element={Account} role={["staff", "student"]} />} />
 
-            <Route path="/studentDashboard" element={<ProtectedRoute element={StudentDashboard} role="student" />} /> 
+            <Route path="/claimRequest" element={<ProtectedRoute element={ClaimRequest} role="student" />} /> 
+            <Route path="/history" element={<ProtectedRoute element={StudentHistory} role="student" />} /> 
+
 
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
             <Route path="/admin" element={<AdminPage />}/>

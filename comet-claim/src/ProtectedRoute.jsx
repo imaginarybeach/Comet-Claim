@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { app, auth } from '../src/firebase/firebaseConfig';
+import { auth } from '../src/firebase/firebaseConfig';
 
 function ProtectedRoute({ element: Component, role, ...rest }) {
   const [isAuthorized, setIsAuthorized] = useState(null);
@@ -12,9 +12,12 @@ function ProtectedRoute({ element: Component, role, ...rest }) {
       user.getIdTokenResult().then(idTokenResult => {
         console.log('User claims:', idTokenResult.claims);
         console.log('User:', user);
+        
 
         const userRole = idTokenResult.claims.role;
-        if (userRole === role) {
+        console.log('User role:', userRole);
+
+        if (role.includes(userRole)) {
           setIsAuthorized(true);
         } else {
           setIsAuthorized(false);

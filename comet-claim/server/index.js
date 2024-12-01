@@ -1,118 +1,143 @@
-import express from 'express'
-import cors from 'cors'
-import bodyParser from 'body-parser'
-import { PrismaClient } from '@prisma/client'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import multer from 'multer'
-import { setCustomClaims } from '../authentication/setCustomClaims.js'
-import { decodeToken } from '../authentication/authMiddleware.js'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FiSearch, FiEdit, FiFlag, FiUser, FiLogOut } from 'react-icons/fi';
+import { AiOutlineHistory } from 'react-icons/ai';
+import { IoDocumentTextOutline } from 'react-icons/io5';
+import { logout } from '../auth/authService';
+import logo from '../assets/logo.png';
+import { auth } from '../firebase/firebaseConfig';
+import { getIdTokenResult } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const prisma = new PrismaClient()
-const app = express()
+export default function Sidebar() {
+  const [userRole, setUserRole] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5183']; 
-const corsOptions = { 
-  origin: (origin, callback) => { 
-    if (allowedOrigins.includes(origin) || !origin) { 
-      callback(null, true); 
-    } else { 
-      callback(new Error('Not allowed by CORS')); 
-    } 
-  } 
-}; 
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const currentUser = auth.currentUser;
 
-app.use(cors(corsOptions));
-app.use(express.json())
-app.use(bodyParser.json());
-
-app.use(decodeToken);
-
-// Serve static files from the uploads directory -- uploads the images to the uploads folder
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
-
-//file upload setup
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
-  }
-})
-
-const upload = multer({ storage: storage })
-
-app.post('/api/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' })
-  }
-  res.json({ filename: req.file.filename })
-})
-
-// Lost items creation
-app.post('/api/lost-items', async (req, res) => {
-  try {
-    console.log('Received request body:', req.body)
-    
-    const requiredFields = ['itemName', 'foundDate', 'finderName', 'finderEmail', 'locationFound', 'color', 'category', 'status', 'keyId']
-    for (const field of requiredFields) {
-      if (!req.body[field]) {
-        console.log(`Missing required field: ${field}`)
-        return res.status(400).json({ success: false, message: `Missing required field: ${field}` })
+        if (currentUser) {
+          const idTokenResult = await getIdTokenResult(currentUser);
+          console.log('Current User Role:', idTokenResult.claims.role); // Debugging: check user role
+          setUserRole(idTokenResult.claims.role);
+        } else {
+          console.log('No current user');
+        }
+      } catch (error) {
+        console.error('Error fetching token result:', error);
       }
+    };
+
+    fetchUserRole();
+  }, []);
+
+  if (location.pathname === '/login') {
+    return null;
+  } else {
+    const handleLogout = async () => {
+      await logout();
+      navigate('/login');
+    };
+
+    if (userRole === null) {
+      return <div>Loading...</div>;
     }
 
-    const lostItem = await prisma.lostItem.create({
-      data: {
-        ...req.body,
-        foundDate: new Date(req.body.foundDate)
-      }
-    })
-    
-    console.log('Created item:', lostItem)
-    res.status(201).json({ success: true, data: lostItem })
-  } catch (error) {
-    console.error('Server error:', error)
-    res.status(500).json({ success: false, message: error.message })
+    return (
+      <div className="w-28 bg-[#E37B54] flex flex-col items-center py-6 space-y-8">
+        <div className="text-white mb-2">
+          <img src={logo} alt="Logo" className="h-16" />
+        </div>
+
+        {userRole === 'staff' && (
+          <>
+            <Link
+              to="/search"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/search' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <FiSearch className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Search</span>
+            </Link>
+
+            <Link
+              to="/register"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/register' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <FiEdit className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Register</span>
+            </Link>
+
+            <Link
+              to="/report"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/report' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <FiFlag className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Report</span>
+            </Link>
+
+            <Link
+              to="/account"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/account' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <FiUser className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Account</span>
+            </Link>
+          </>
+        )}
+
+        {userRole === 'student' && (
+          <>
+            <Link
+              to="/claimRequest"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/claimRequest' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <IoDocumentTextOutline className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Claim Request</span>
+            </Link>
+
+            <Link
+              to="/history"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/history' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <AiOutlineHistory className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">History</span>
+            </Link>
+
+            <Link
+              to="/account"
+              className={`w-full p-1.5 text-white text-center ${location.pathname === '/account' ? 'opacity-100 bg-[#E29375] border-l-4 border-l-white' : 'opacity-75'}`}
+            >
+              <div className="mb-2">
+                <FiUser className="w-6 h-6 mx-auto" />
+              </div>
+              <span className="text-sm">Account</span>
+            </Link>
+          </>
+        )}
+
+        <div
+          className={`w-full p-1.5 text-white text-center opacity-75 cursor-pointer hover:opacity-100`} onClick={handleLogout}
+        >
+          <div className="mb-2">
+            <FiLogOut className="w-6 h-6 mx-auto" />
+          </div>
+          <span className="text-sm">Logout</span>
+        </div>
+      </div>
+    );
   }
-})
-
-app.get('/api/search', async (req, res) => {
-  try {
-    console.log('Received search request')
-    const items = await prisma.lostItem.findMany({
-      orderBy: {
-        foundDate: 'desc'
-      }
-    })
-    console.log('Found items:', items.length) 
-    res.json(items)
-  } catch (error) {
-    console.error('Error fetching items:', error)
-    res.status(500).json({ message: 'Error fetching items' })
-  }
-})
-
-
-app.post('/setRole', async (req, res) => { 
-  const { uid, role } = req.body; 
-  if (!req.user) { 
-    return res.status(403).send('Unauthorized'); 
-  } 
-  try { 
-    await setCustomClaims(uid, role); 
-    res.status(200).send(`Role ${role} set for user ${uid}`); 
-  } catch (error) { 
-    console.error('Error setting role:', error); 
-    res.status(500).send('Error setting role'); 
-  } 
-});
-
-
-const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
-})
+}

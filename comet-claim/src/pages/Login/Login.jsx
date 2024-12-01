@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import './Login.css';
+import logo from '../../assets/logo.png';
 import { getAuth, getIdTokenResult } from 'firebase/auth';
 import { signIn } from '../../auth/authService';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +31,7 @@ export default function Login() {
           autoClose: 5000,
         });
       } else if (authRole === "STUDENT SIGN IN" && idTokenResult.claims.role === 'student') {
-        navigate('/studentDashboard');
+        navigate('/claimRequest');
         toast.success("Logged In", {
           position: "top-right",
           autoClose: 5000,
@@ -54,7 +55,7 @@ export default function Login() {
   return (
     <div className='login'>
       <div className='left'>
-        <img src="/logo.svg" alt="Logo" className="w-8 h-8" />
+        <img src={logo} alt="Logo"/>
         <h1>COMETCOLLECT</h1>
       </div>
       <div className='right'>
