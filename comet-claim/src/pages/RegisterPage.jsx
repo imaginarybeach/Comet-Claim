@@ -46,6 +46,13 @@ function App() {
     setIsSubmitting(true);
 
     try {
+        // Validate required fields
+        if (!formData.foundDate) {
+            toast.error('Please select a found date');
+            setIsSubmitting(false);
+            return;
+        }
+
         let imageUrl = null;
         if (imageFile) {
             const formData = new FormData();
@@ -61,8 +68,12 @@ function App() {
             }
 
             const uploadData = await uploadResponse.json();
-            imageUrl = uploadData.filename;
+            imageUrl = uploadData.imageUrl;
         }
+
+        // Create a date object at noon to avoid timezone issues
+        const foundDate = new Date(formData.foundDate);
+        foundDate.setHours(12, 0, 0, 0);
 
         const response = await fetch('http://localhost:3001/api/lost-items', {
             method: 'POST',
@@ -71,7 +82,7 @@ function App() {
             },
             body: JSON.stringify({
                 itemName: formData.itemFound,
-                foundDate: new Date(formData.foundDate).toISOString(),
+                foundDate: foundDate.toISOString(),
                 finderName: formData.finderName,
                 finderEmail: formData.finderEmail,
                 locationFound: formData.locationFound,

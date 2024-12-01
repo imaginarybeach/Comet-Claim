@@ -14,7 +14,7 @@ datasource db {
 }
 
 model LostItem {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   itemName      String   
   category      String
   color         String
@@ -32,4 +32,18 @@ model LostItem {
   keyId         String   @unique 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-} 
+  claimRequests ClaimRequest[]
+}
+
+model ClaimRequest {
+  id            String   @id @default(cuid())
+  lostItem      LostItem @relation(fields: [lostItemId], references: [id])
+  lostItemId    String
+  studentName   String
+  studentEmail  String
+  studentId     String?  // Made optional
+  description   String   // Why they believe the item belongs to them
+  status        String   @default("Pending") // Pending, Approved, Rejected
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
