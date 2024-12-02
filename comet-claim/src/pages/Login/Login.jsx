@@ -25,17 +25,17 @@ export default function Login() {
       console.log("Token Result: ", idTokenResult);
 
       if (authRole === "STAFF SIGN IN" && idTokenResult.claims.role === 'staff') {
-        navigate('/search');
         toast.success("Logged In", {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 1000,
         });
+        setTimeout(() => navigate('/search'), 1500);
       } else if (authRole === "STUDENT SIGN IN" && idTokenResult.claims.role === 'student') {
-        navigate('/claimRequest');
         toast.success("Logged In", {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 1000,
         });
+        setTimeout(() => navigate('/claimRequest'), 1500);
       } else {
         console.error('Unauthorized access:', idTokenResult.claims.role);
         toast.error("Unauthorized access", {
