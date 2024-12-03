@@ -20,23 +20,26 @@ export default function Login() {
     try {
       const user = await signIn(email, password);
       const auth = getAuth();
-      const idTokenResult = await getIdTokenResult(auth.currentUser);
+      const idTokenResult = await auth.currentUser.getIdTokenResult();
 
       console.log("Token Result: ", idTokenResult);
 
       if (authRole === "STAFF SIGN IN" && idTokenResult.claims.role === 'staff') {
-        toast.success("Logged In", {
-          position: "top-right",
-          autoClose: 1000,
-        });
-        setTimeout(() => navigate('/search'), 1500);
+        navigate('/search');
+        setTimeout(() => {
+          toast.success("Logged In", {
+            position: "top-right",
+            autoClose: 1000,
+          });
+        }, 200);
       } else if (authRole === "STUDENT SIGN IN" && idTokenResult.claims.role === 'student') {
         navigate('/claimRequest');
-        toast.success("Logged In", {
-          position: "top-right",
-          autoClose: 1000,
-        });
-        setTimeout(() => navigate('/claimRequest'), 1500);
+        setTimeout(() => {
+          toast.success("Logged In", {
+            position: "top-right",
+            autoClose: 1000,
+          });
+        }, 200);
       } else {
         console.error('Unauthorized access:', idTokenResult.claims.role);
         toast.error("Unauthorized access", {
