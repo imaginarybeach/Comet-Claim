@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FiSearch, FiFilter } from 'react-icons/fi'
 import { auth } from '../firebase/firebaseConfig';
+import { ToastContainer } from 'react-toastify';
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -31,7 +32,6 @@ export default function SearchPage() {
       if (currentUser) {
         const idToken = await currentUser.getIdToken(true);
         console.log('ID Token:', idToken); 
-        // Remove the status filter to get all items
         const response = await fetch('http://localhost:3001/api/lost-items', {
           headers: {
             'Authorization': `Bearer ${idToken}`
@@ -171,7 +171,6 @@ export default function SearchPage() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-8">Lost and Found Items</h1>
-
       {/* Tabs */}
       <div className="mb-6 border-b">
         <div className="flex space-x-8">
@@ -389,6 +388,7 @@ export default function SearchPage() {
           />
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 }

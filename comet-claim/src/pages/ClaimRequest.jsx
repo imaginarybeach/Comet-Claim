@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
 
 export default function ClaimRequest() {
   const [lostItems, setLostItems] = useState([]);
@@ -69,13 +70,13 @@ export default function ClaimRequest() {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen" data-testid="loading">
       <div className="text-xl">Loading...</div>
     </div>
   );
 
   if (error) return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen" data-testid="error">
       <div className="text-xl text-red-500">{error}</div>
     </div>
   );
@@ -85,7 +86,7 @@ export default function ClaimRequest() {
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Claim Lost Item</h1>
       
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded" data-testid="error-message">
           {error}
         </div>
       )}
@@ -103,6 +104,7 @@ export default function ClaimRequest() {
                 className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg ${
                   selectedItem?.id === item.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
                 }`}
+                data-testid={`item-${item.id}`}
                 onClick={() => {
                   if (item.status === 'Lost') {
                     setSelectedItem(item);
@@ -115,15 +117,16 @@ export default function ClaimRequest() {
                     src={`http://localhost:3001/uploads/${item.imageUrl}`}
                     alt={item.itemName}
                     className="w-full h-48 object-cover mb-4 rounded"
+                    data-testid={`item-image-${item.id}`}
                   />
                 )}
-                <h3 className="font-semibold text-lg text-gray-800">{item.itemName}</h3>
-                <p className="text-sm text-gray-600">Category: {item.category}</p>
-                <p className="text-sm text-gray-600">Location: {item.locationFound}</p>
-                <p className="text-sm text-gray-600">Found Date: {new Date(item.foundDate).toLocaleDateString()}</p>
+                <h3 className="font-semibold text-lg text-gray-800" data-testid={`item-name-${item.id}`}>{item.itemName}</h3>
+                <p className="text-sm text-gray-600" data-testid={`item-category-${item.id}`}>Category: {item.category}</p>
+                <p className="text-sm text-gray-600" data-testid={`item-location-${item.id}`}>Location: {item.locationFound}</p>
+                <p className="text-sm text-gray-600" data-testid={`item-date-${item.id}`}>Found Date: {new Date(item.foundDate).toLocaleDateString()}</p>
                 <p className={`text-sm mt-2 ${
                   item.status === 'Lost' ? 'text-green-600' : 'text-yellow-600'
-                }`}>
+                }`} data-testid={`item-status-${item.id}`} >
                   Status: {item.status === 'Lost' ? 'Available' : 'Pending Review'}
                 </p>
               </div>
@@ -145,6 +148,7 @@ export default function ClaimRequest() {
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 required
+                data-testid="input-name"
               />
             </div>
             <div>
@@ -155,6 +159,7 @@ export default function ClaimRequest() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 required
+                data-testid="input-email"
               />
             </div>
             <div>
@@ -166,17 +171,20 @@ export default function ClaimRequest() {
                 rows="4"
                 placeholder="Please describe why you believe this item belongs to you..."
                 required
+                data-testid="input-description"
               />
             </div>
             <button
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              data-testid="submit-button"
             >
               Submit Claim
             </button>
           </form>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 }
