@@ -1,6 +1,6 @@
 # Comet Claim
 
-**Comet Claim** is a system designed to modernize and streamline the lost and found process for students and staff at XYZ School. This program replaces the previous manual system, making it easier for students to report lost items and for staff to track and manage them across campus.
+**Comet Claim** is a system designed to modernize and streamline the lost and found process for students and staff atuniversity of Texas- Dallas. This program replaces the previous manual system, making it easier for students to report lost items and for staff to track and manage them across campus.
 
 ## Features
 
